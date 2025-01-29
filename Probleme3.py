@@ -5,110 +5,110 @@ On remarque que beaucoup d'appels sont identiques.
 
 import random
 
-cpt=0
-
-def trouveExpr(v, valeurs) :
-    print(f"Appel: v={v}, valeurs={valeurs}") 
-    global cpt
-    cpt+=1
-    if len(valeurs) == 1 :     
-        if (v == valeurs[0]) : 
-            return (True,str(v))
-        else : 
-            return (False, "")
-    else :
-        if v in valeurs :
-            return (True, str(v))
-        else :import random
-
 cpt = 0
-
-calls = {}
+cpt_redondance = 0
 
 def trouveExpr(v, valeurs):
-    global cpt, calls
-    
+    global cpt
+    global cpt_redondance
     cpt += 1
     
-    etat = (v, tuple(valeurs))
+    memo = {}
     
-    if etat in calls:
-        calls[etat] += 1
-    else:
-        calls[etat] = 1
+    def trouveExpr_recursive(v, valeurs):
+        global cpt_redondance
 
-    if len(valeurs) == 1 :
-        if (v == valeurs[0]):
-            return (True, str(v))
-        else:
-            return (False, "")
-    else:
-        if v in valeurs:
-            return (True, str(v))
-        else:
-            for x in valeurs:
-                valeurs2 = valeurs[:]
-                valeurs2.remove(x)
-                
-                (t, ch) = trouveExpr(v + x, valeurs2)
-                if t: return (t, ch + " - " + str(x))
-                
-                if (v >= x):
-                    (t, ch) = trouveExpr(v - x, valeurs2)
-                    if t: return (t, str(x) + " + (" + ch + ") ")
-                
-                if (v <= x):
-                    (t, ch) = trouveExpr(x - v, valeurs2)
-                    if t: return (t, str(x) + " + (" + ch + ") ")
-                
-                if (v >= x) and v % x == 0:
-                    (t, ch) = trouveExpr(v // x, valeurs2)
-                    if t: return (t, "(" + ch + ") * " + str(x))
-                
-                if (v <= x) and x % v == 0:
-                    (t, ch) = trouveExpr(x // v, valeurs2)
-                    if t: return (t, str(x) + " / (" + ch + ") ")
-                
-                (t, ch) = trouveExpr(v * x, valeurs2)
-                if t: return (t, "(" + ch + ") / " + str(x))
-            
-            return (False, "")
-
-nombres = []
-operateurs = ['+', '-', '*', '/']
-operandes = list(range(1,11)) + list(range(1,11)) + [25, 50, 75, 100]
-
-nombres = [50, 10, 2, 9, 10, 25]
-cible = 184 
-res = trouveExpr(cible, nombres)
-
-print("Cible  :", cible)
-print("Nombres:", nombres)
-print("Résultat de trouveExpr :", res)
-print("Nombre total d'appels :", cpt)
-
-redondances = sum((nb_appels - 1) for nb_appels in calls.values())
-print("Nombre de redondances :", redondances)
-
-if not res[0]:
-    for i in range(cible):
-        print("Écart :", i)
+        memo_key = (v, tuple(sorted(valeurs)))
+        if memo_key in memo:
+            cpt_redondance += 1
+            return memo[memo_key]
         
-        res_plus = trouveExpr(cible + i, nombres)
-        if res_plus[0]:
-            print("Trouvé pour :", cible + i, res_plus)
-            print("Nombre total d'appels maintenant :", cpt)
-            break
-        
-        res_moins = trouveExpr(cible - i, nombres)
-        if res_moins[0]:
-            print("Trouvé pour :", cible - i, res_moins)
-            print("Nombre total d'appels maintenant :", cpt)
-            break
+        if len(valeurs) == 1:
+            if (v == valeurs[0]):
+                result = (True, str(v))
+            else:
+                result = (False, "")
+        else:
+            if v in valeurs:
+                result = (True, str(v))
+            else:
+                found = False
+                for x in valeurs:
+                    valeurs2 = valeurs[:]
+                    valeurs2.remove(x)
 
-redondances_final = sum((nb_appels - 1) for nb_appels in calls.values())
-print("Nombre total d'appels final :", cpt)
-print("Nombre de redondances final :", redondances_final)
+                    (t, ch) = trouveExpr_recursive(v + x, valeurs2)
+                    if t:
+                        result = (t, ch + " - " + str(x))
+                        found = True
+                        break
+
+                    if (v >= x):
+                        (t, ch) = trouveExpr_recursive(v - x, valeurs2)
+                        if t:
+                            result = (t, str(x) + " + (" + ch + ") ")
+                            found = True
+                            break
+
+                    if (v <= x):
+                        (t, ch) = trouveExpr_recursive(x - v, valeurs2)
+                        if t:
+                            result = (t, str(x) + " + (" + ch + ") ")
+                            found = True
+                            break
+
+                    if (v >= x) and v % x == 0:
+                        (t, ch) = trouveExpr_recursive(v // x, valeurs2)
+                        if t:
+                            result = (t, "(" + ch + ") * " + str(x))
+                            found = True
+                            break
+
+                    if (v <= x) and x % v == 0:
+                        (t, ch) = trouveExpr_recursive(x // v, valeurs2)
+                        if t:
+                            result = (t, str(x) + " / (" + ch + ") ")
+                            found = True
+                            break
+                            
+                    (t, ch) = trouveExpr_recursive(v * x, valeurs2)
+                    if t:
+                        result = (t, "(" + ch + ") / " + str(x))
+                        found = True
+                        break
+                
+                if not found:
+                    result = (False, "")
+        
+        memo[memo_key] = result
+        return result
+
+    return trouveExpr_recursive(v, valeurs)
+
+# Tests avec les valeurs spécifiques
+tests = [
+    (813, [6, 5, 10, 9, 8, 3]),
+    (184, [50, 10, 2, 9, 10, 25]),
+    (799, [4, 8, 5, 6, 6, 2])
+]
+
+for cible, nombres in tests:
+    cpt = 0  # Réinitialisation des compteurs pour chaque test
+    cpt_redondance = 0
+    res = trouveExpr(cible, nombres)
+    print(cible, nombres, res, cpt, cpt_redondance)
+
+    if (res[0] == False):
+        for i in range(cible):
+            print("écart", i)
+            res = trouveExpr(cible + i, nombres)
+            if (res[0] == True):
+                print(cible, cible + i, nombres, res, cpt, cpt_redondance)
+                break
+            res = trouveExpr(cible - i, nombres)
+            if (res[0] == True):
+                print(cible, cible - i, nombres, res, cpt, cpt_redondance)
+                break
 
 '''
 
@@ -191,8 +191,8 @@ def generer_nombres(n=6):
 
 if __name__ == "__main__":
     # Génération aléatoire de la cible et des nombres
-    nombres = [50, 10, 2, 9, 10, 25]
-    cible = 184
+    nombres = [4, 8, 5, 6, 6, 2]
+    cible = 799
 
     # Recherche d'une solution exacte
     res = trouveExpr(cible, nombres)
