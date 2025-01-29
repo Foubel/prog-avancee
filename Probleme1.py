@@ -77,6 +77,6 @@ if __name__ == "__main__":
     result_3, iterations_3, deaths_3, plates_3 = strategie3(n, s)
 
     print("=== Résultats ===")
-    #print(f"Stratégie 1 (k >= log2(n)) : Seuil trouvé = {result_1}, Itérations = {iterations_1}, Élèves morts = {deaths_1}, Assiettes mangées = {plates_1}")
-    #print(f"Stratégie 2 (k < log2(n)) : Seuil trouvé = {result_2}, Itérations = {iterations_2}, Élèves morts = {deaths_2}, Assiettes mangées = {plates_2}")
+    print(f"Stratégie 1 (k >= log2(n)) : Seuil trouvé = {result_1}, Itérations = {iterations_1}, Élèves morts = {deaths_1}, Assiettes mangées = {plates_1}")
+    print(f"Stratégie 2 (k < log2(n)) : Seuil trouvé = {result_2}, Itérations = {iterations_2}, Élèves morts = {deaths_2}, Assiettes mangées = {plates_2}")
     print(f"Stratégie 3 (k = 2) : Seuil trouvé = {result_3}, Itérations = {iterations_3}, Élèves morts = {deaths_3}, Assiettes mangées = {plates_3}")
